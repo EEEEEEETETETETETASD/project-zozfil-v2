@@ -63,10 +63,22 @@ def apply_update(latest_version):
             os.remove(GAME_EXE)
         shutil.move("temp_app.exe", GAME_EXE)
         
+        # Download icon.png if not present
+        if not os.path.exists("icon.png"):
+            try:
+                icon_response = requests.get(f"{UPDATE_URL}icon.png", stream=True)
+                icon_response.raise_for_status()
+                with open("icon.png", "wb") as f:
+                    for chunk in icon_response.iter_content(chunk_size=8192):
+                        f.write(chunk)
+                print("Icon downloaded.")
+            except Exception as e:
+                print(f"Error downloading icon: {e}")
+
         # Update version file
         with open(VERSION_FILE, "w") as f:
             json.dump({"version": latest_version}, f)
-        
+
         print("Update applied successfully!")
         return True
     except Exception as e:
@@ -77,9 +89,20 @@ def apply_update(latest_version):
 if __name__ == "__main__":
     print(f"Current version: {current_version}")
     latest_version = check_for_updates()
-    
+
     if latest_version:
         print(f"Update available: {latest_version}")
         apply_update(latest_version)
+    elif not os.path.exists(GAME_EXE):
+        print(f"{GAME_EXE} not found. Downloading latest version...")
+        # Fetch latest version again or assume current_version is latest? Wait, if no update, but exe missing, perhaps download anyway.
+        # Since check_for_updates fetches latest, and if not > current, but exe missing, download latest.
+        try:
+            response = requests.get(f"{UPDATE_URL}latest_version.json")
+            latest_version_data = response.json()
+            latest_version = latest_version_data.get("version", current_version)
+            apply_update(latest_version)
+        except Exception as e:
+            print(f"Error downloading: {e}")
     else:
         print("No updates available.")

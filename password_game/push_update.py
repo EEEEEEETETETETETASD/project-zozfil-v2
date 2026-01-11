@@ -40,6 +40,11 @@ if os.path.exists("dist/app.exe"):
     shutil.copy("dist/app.exe", os.path.join(UPDATE_DIR, f"{new_version}.exe"))
     print(f"Update exe: {os.path.join(UPDATE_DIR, f'{new_version}.exe')}")
 
+# Copy icon.png if it exists
+if os.path.exists("icon.png"):
+    shutil.copy("icon.png", os.path.join(UPDATE_DIR, "icon.png"))
+    print(f"Update icon: {os.path.join(UPDATE_DIR, 'icon.png')}")
+
 print(f"Update {new_version} generated successfully!")
 print(f"Latest version file: {os.path.join(UPDATE_DIR, 'latest_version.json')}")
 
