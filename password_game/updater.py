@@ -14,7 +14,7 @@ import sys
 # Replace this URL with your own update server URL
 # For example: "https://yourwebsite.com/updates/project_zozfil/"
 # The server should host the update files and a latest_version.json file
-UPDATE_URL = "https://eeeeeeetetetetetasd.github.io/project-zozfil/"
+UPDATE_URL = "github.com/EEEEEEETETETETETASD/project-zozfil-v2.git"
 VERSION_FILE = "version.json"
 GAME_EXE = "app.exe"
 
