@@ -99,6 +99,17 @@ last_guess = ""
 # Changelog data
 changelog_data = [
     {
+        "version": "1.0.4",
+        "changes": [
+            "Fixed back button navigation from settings during gameplay",
+            "Fixed game over enter key handling to prevent negative guesses",
+            "Improved last guess display formatting",
+            "Made resolution and fullscreen settings functional",
+            "Added Changelogs menu with scrollable history",
+            "Enhanced UI with better button boxes and theming"
+        ]
+    },
+    {
         "version": "1.0.3",
         "changes": [
             "Fixed update download corruption with streaming",
@@ -128,6 +139,15 @@ changelog_data = [
 ]
 
 scroll_y = 0
+prev_state = MENU
+current_resolution = (SCREEN_WIDTH, SCREEN_HEIGHT)
+fullscreen = False
+available_resolutions = pygame.display.list_modes()
+if current_resolution in available_resolutions:
+    res_index = available_resolutions.index(current_resolution)
+else:
+    res_index = 0
+    current_resolution = available_resolutions[0] if available_resolutions else (800, 600)
 
 # Animated dots
 class Dot:
@@ -253,15 +273,27 @@ def draw_settings():
     screen.blit(graphics_tab, (SCREEN_WIDTH // 2 - graphics_tab.get_width() // 2, 50))
 
     # Settings content
-    resolution_text = small_font.render("Resolution: 800x600", True, WHITE)
-    fullscreen_text = small_font.render("Fullscreen: Off", True, WHITE)
+    res_w, res_h = current_resolution
+    resolution_text = small_font.render(f"Resolution: {res_w}x{res_h}", True, WHITE)
+    fullscreen_text = small_font.render(f"Fullscreen: {'On' if fullscreen else 'Off'}", True, WHITE)
     back_text = scaled_font.render("Back", True, WHITE)
 
-    # Draw back button box
-    pygame.draw.rect(screen, WHITE, (SCREEN_WIDTH // 2 - 60, 495, 120, 40), 2)
+    # Buttons
+    left_res = small_font.render("<", True, WHITE)
+    right_res = small_font.render(">", True, WHITE)
+    toggle_fs = small_font.render("Toggle", True, WHITE)
 
+    # Draw boxes
+    pygame.draw.rect(screen, WHITE, (SCREEN_WIDTH // 2 - 80, 145, 30, 30), 2)  # < res
+    pygame.draw.rect(screen, WHITE, (SCREEN_WIDTH // 2 + 50, 145, 30, 30), 2)  # > res
+    pygame.draw.rect(screen, WHITE, (SCREEN_WIDTH // 2 - 60, 195, 120, 30), 2)  # toggle fs
+    pygame.draw.rect(screen, WHITE, (SCREEN_WIDTH // 2 - 60, 495, 120, 40), 2)  # back
+
+    screen.blit(left_res, (SCREEN_WIDTH // 2 - 75, 150))
     screen.blit(resolution_text, (SCREEN_WIDTH // 2 - resolution_text.get_width() // 2, 150))
+    screen.blit(right_res, (SCREEN_WIDTH // 2 + 55, 150))
     screen.blit(fullscreen_text, (SCREEN_WIDTH // 2 - fullscreen_text.get_width() // 2, 200))
+    screen.blit(toggle_fs, (SCREEN_WIDTH // 2 - toggle_fs.get_width() // 2, 200))
     screen.blit(back_text, (SCREEN_WIDTH // 2 - back_text.get_width() // 2, 500))
 
     # Display version
@@ -280,7 +312,7 @@ def get_wordle_hint(guess, password):
         elif c in password:
             result.append(f"({c})")  # Correct char, wrong position
         else:
-            result.append(f" {c} ")  # Wrong
+            result.append(c)  # Wrong
     return ''.join(result)
 
 def get_hint(password, wrong_guesses, last_guess):
@@ -331,7 +363,7 @@ def draw_game():
 
 def handle_menu_click(pos):
     """Handle menu button clicks."""
-    global current_state
+    global current_state, prev_state
 
     play_rect = pygame.Rect(SCREEN_WIDTH // 2 - 60, 245, 120, 40)
     settings_rect = pygame.Rect(SCREEN_WIDTH // 2 - 60, 295, 120, 40)
@@ -341,42 +373,59 @@ def handle_menu_click(pos):
     if play_rect.collidepoint(pos):
         current_state = PLAYING
     elif settings_rect.collidepoint(pos):
+        prev_state = current_state
         current_state = SETTINGS
     elif changelogs_rect.collidepoint(pos):
+        prev_state = current_state
         current_state = CHANGELOGS
     elif exit_rect.collidepoint(pos):
         current_state = EXIT
 
 def handle_changelogs_click(pos):
     """Handle changelogs button clicks."""
-    global current_state
+    global current_state, prev_state
 
     back_rect = pygame.Rect(SCREEN_WIDTH // 2 - 60, 500, 120, 40)
 
     if back_rect.collidepoint(pos):
-        current_state = MENU
+        current_state = prev_state
 
 def handle_settings_click(pos):
     """Handle settings button clicks."""
-    global current_state
+    global current_state, prev_state, current_resolution, fullscreen, res_index
 
+    left_res_rect = pygame.Rect(SCREEN_WIDTH // 2 - 80, 145, 30, 30)
+    right_res_rect = pygame.Rect(SCREEN_WIDTH // 2 + 50, 145, 30, 30)
+    toggle_fs_rect = pygame.Rect(SCREEN_WIDTH // 2 - 60, 195, 120, 30)
     back_rect = pygame.Rect(SCREEN_WIDTH // 2 - 60, 495, 120, 40)
 
-    if back_rect.collidepoint(pos):
-        current_state = MENU
+    if left_res_rect.collidepoint(pos):
+        res_index = (res_index - 1) % len(available_resolutions)
+        current_resolution = available_resolutions[res_index]
+        pygame.display.set_mode(current_resolution, pygame.FULLSCREEN if fullscreen else 0)
+    elif right_res_rect.collidepoint(pos):
+        res_index = (res_index + 1) % len(available_resolutions)
+        current_resolution = available_resolutions[res_index]
+        pygame.display.set_mode(current_resolution, pygame.FULLSCREEN if fullscreen else 0)
+    elif toggle_fs_rect.collidepoint(pos):
+        fullscreen = not fullscreen
+        pygame.display.set_mode(current_resolution, pygame.FULLSCREEN if fullscreen else 0)
+    elif back_rect.collidepoint(pos):
+        current_state = prev_state
 
 def handle_pause_menu_click(pos):
     """Handle pause menu button clicks."""
-    global current_state
-    
+    global current_state, prev_state
+
     resume_rect = pygame.Rect(SCREEN_WIDTH // 2 - 50, 250, 100, 40)
     settings_rect = pygame.Rect(SCREEN_WIDTH // 2 - 50, 300, 100, 40)
     main_menu_rect = pygame.Rect(SCREEN_WIDTH // 2 - 50, 350, 100, 40)
     exit_rect = pygame.Rect(SCREEN_WIDTH // 2 - 50, 400, 100, 40)
-    
+
     if resume_rect.collidepoint(pos):
         current_state = PLAYING
     elif settings_rect.collidepoint(pos):
+        prev_state = current_state
         current_state = SETTINGS
     elif main_menu_rect.collidepoint(pos):
         current_state = MENU
@@ -388,6 +437,14 @@ def handle_game_input(event):
     global user_guess, current_password_index, guesses_used, game_over, last_guess
 
     if event.type == pygame.KEYDOWN:
+        if game_over:
+            if event.key == pygame.K_RETURN:
+                current_password_index = 0
+                guesses_used = 0
+                game_over = False
+                last_guess = ""
+                user_guess = ""
+            return
         if event.key == pygame.K_RETURN:
             if user_guess == passwords[current_password_index]:
                 current_password_index += 1
