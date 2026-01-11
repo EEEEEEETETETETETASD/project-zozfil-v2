@@ -22,7 +22,7 @@ SCREEN_HEIGHT = 600
 BACKGROUND_COLOR = (0, 0, 0)  # Black
 WHITE = (255, 255, 255)
 FONT_SIZE = 32
-UPDATE_URL = "https://EEEEEEETETETETASD.github.io/project-zozfil/password_game/updates/"
+UPDATE_URL = "http://localhost:8000/"
 
 # Set up the screen
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE)
