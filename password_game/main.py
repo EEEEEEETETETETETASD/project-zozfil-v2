@@ -16,6 +16,13 @@ import requests
 # Initialize Pygame
 pygame.init()
 
+# Set window icon
+try:
+    icon = pygame.image.load("icon.png")
+    pygame.display.set_icon(icon)
+except pygame.error:
+    pass  # Icon not found, continue without
+
 # Constants
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
@@ -25,7 +32,7 @@ FONT_SIZE = 32
 UPDATE_URL = "github.com/EEEEEEETETETETETASD/project-zozfil-v2.git"
 
 # Set up the screen
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE)
 pygame.display.set_caption("Project Zozfil")
 
 # Font
@@ -98,6 +105,15 @@ last_guess = ""
 
 # Changelog data
 changelog_data = [
+    {
+        "version": "1.0.5",
+        "changes": [
+            "Made window resizable by dragging edges",
+            "Removed resolution settings, kept fullscreen toggle",
+            "Added progressive general hints that reveal more with wrong guesses",
+            "Improved hint system with both general clues and Wordle-like feedback"
+        ]
+    },
     {
         "version": "1.0.4",
         "changes": [
@@ -273,25 +289,16 @@ def draw_settings():
     screen.blit(graphics_tab, (SCREEN_WIDTH // 2 - graphics_tab.get_width() // 2, 50))
 
     # Settings content
-    res_w, res_h = current_resolution
-    resolution_text = small_font.render(f"Resolution: {res_w}x{res_h}", True, WHITE)
     fullscreen_text = small_font.render(f"Fullscreen: {'On' if fullscreen else 'Off'}", True, WHITE)
     back_text = scaled_font.render("Back", True, WHITE)
 
     # Buttons
-    left_res = small_font.render("<", True, WHITE)
-    right_res = small_font.render(">", True, WHITE)
     toggle_fs = small_font.render("Toggle", True, WHITE)
 
     # Draw boxes
-    pygame.draw.rect(screen, WHITE, (SCREEN_WIDTH // 2 - 80, 145, 30, 30), 2)  # < res
-    pygame.draw.rect(screen, WHITE, (SCREEN_WIDTH // 2 + 50, 145, 30, 30), 2)  # > res
     pygame.draw.rect(screen, WHITE, (SCREEN_WIDTH // 2 - 60, 195, 120, 30), 2)  # toggle fs
     pygame.draw.rect(screen, WHITE, (SCREEN_WIDTH // 2 - 60, 495, 120, 40), 2)  # back
 
-    screen.blit(left_res, (SCREEN_WIDTH // 2 - 75, 150))
-    screen.blit(resolution_text, (SCREEN_WIDTH // 2 - resolution_text.get_width() // 2, 150))
-    screen.blit(right_res, (SCREEN_WIDTH // 2 + 55, 150))
     screen.blit(fullscreen_text, (SCREEN_WIDTH // 2 - fullscreen_text.get_width() // 2, 200))
     screen.blit(toggle_fs, (SCREEN_WIDTH // 2 - toggle_fs.get_width() // 2, 200))
     screen.blit(back_text, (SCREEN_WIDTH // 2 - back_text.get_width() // 2, 500))
@@ -316,11 +323,19 @@ def get_wordle_hint(guess, password):
     return ''.join(result)
 
 def get_hint(password, wrong_guesses, last_guess):
-    """Generate hints, always show length, and Wordle feedback if available."""
-    hint_parts = [f"Length: {len(password)}"]
+    """Generate progressive hints and Wordle feedback."""
+    hints = [
+        lambda p: f"Length: {len(p)}",
+        lambda p: f"Starts with: {p[:2]}",
+        lambda p: f"Uppercase letters: {sum(1 for c in p if c.isupper())}",
+        lambda p: f"Digits: {sum(1 for c in p if c.isdigit())}",
+        lambda p: f"Ends with: {p[-2:]}",
+    ]
+
+    available_hints = [hint(password) for hint in hints[:wrong_guesses + 1]]
     if last_guess:
-        hint_parts.append(f"Last guess: {get_wordle_hint(last_guess, password)}")
-    return ", ".join(hint_parts)
+        available_hints.append(f"Last guess: {get_wordle_hint(last_guess, password)}")
+    return ", ".join(available_hints)
 
 def draw_game():
     """Draw the game screen."""
@@ -392,24 +407,14 @@ def handle_changelogs_click(pos):
 
 def handle_settings_click(pos):
     """Handle settings button clicks."""
-    global current_state, prev_state, current_resolution, fullscreen, res_index
+    global current_state, prev_state, fullscreen
 
-    left_res_rect = pygame.Rect(SCREEN_WIDTH // 2 - 80, 145, 30, 30)
-    right_res_rect = pygame.Rect(SCREEN_WIDTH // 2 + 50, 145, 30, 30)
     toggle_fs_rect = pygame.Rect(SCREEN_WIDTH // 2 - 60, 195, 120, 30)
     back_rect = pygame.Rect(SCREEN_WIDTH // 2 - 60, 495, 120, 40)
 
-    if left_res_rect.collidepoint(pos):
-        res_index = (res_index - 1) % len(available_resolutions)
-        current_resolution = available_resolutions[res_index]
-        pygame.display.set_mode(current_resolution, pygame.FULLSCREEN if fullscreen else 0)
-    elif right_res_rect.collidepoint(pos):
-        res_index = (res_index + 1) % len(available_resolutions)
-        current_resolution = available_resolutions[res_index]
-        pygame.display.set_mode(current_resolution, pygame.FULLSCREEN if fullscreen else 0)
-    elif toggle_fs_rect.collidepoint(pos):
+    if toggle_fs_rect.collidepoint(pos):
         fullscreen = not fullscreen
-        pygame.display.set_mode(current_resolution, pygame.FULLSCREEN if fullscreen else 0)
+        pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE | (pygame.FULLSCREEN if fullscreen else 0))
     elif back_rect.collidepoint(pos):
         current_state = prev_state
 
@@ -500,6 +505,9 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.VIDEORESIZE:
+            SCREEN_WIDTH, SCREEN_HEIGHT = event.size
+            screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE | (pygame.FULLSCREEN if fullscreen else 0))
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if current_state == MENU:
                 handle_menu_click(event.pos)
