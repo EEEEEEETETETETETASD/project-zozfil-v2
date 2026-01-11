@@ -10,7 +10,7 @@ import os
 
 # Configuration
 PORT = 8000
-DIRECTORY = "updates"
+DIRECTORY = os.path.join(os.path.dirname(__file__), "updates")
 
 class Handler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
