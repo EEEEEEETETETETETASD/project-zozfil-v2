@@ -16,20 +16,13 @@ import requests
 # Initialize Pygame
 pygame.init()
 
-# Set window icon
-try:
-    icon = pygame.image.load("icon.png")
-    pygame.display.set_icon(icon)
-except pygame.error:
-    pass  # Icon not found, continue without
-
 # Constants
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 BACKGROUND_COLOR = (0, 0, 0)  # Black
 WHITE = (255, 255, 255)
 FONT_SIZE = 32
-UPDATE_URL = "github.com/EEEEEEETETETETETASD/project-zozfil-v2.git"
+UPDATE_URL = "https://EEEEEEETETETETASD.github.io/project-zozfil/password_game/updates/"
 
 # Set up the screen
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE)
@@ -204,17 +197,25 @@ def draw_menu():
     version = get_version()
     version_text = scale_font(16).render(f"Version: {version}", True, WHITE)
     
-    # Draw button boxes
-    pygame.draw.rect(screen, WHITE, (SCREEN_WIDTH // 2 - 60, 245, 120, 40), 2)
-    pygame.draw.rect(screen, WHITE, (SCREEN_WIDTH // 2 - 60, 295, 120, 40), 2)
-    pygame.draw.rect(screen, WHITE, (SCREEN_WIDTH // 2 - 60, 345, 120, 40), 2)
-    pygame.draw.rect(screen, WHITE, (SCREEN_WIDTH // 2 - 60, 395, 120, 40), 2)
+    # Draw button boxes with size based on text
+    button_padding = 20
+    button_height = play_text.get_height() + 10
+
+    play_rect = pygame.Rect(SCREEN_WIDTH // 2 - (play_text.get_width() + button_padding) // 2, 245, play_text.get_width() + button_padding, button_height)
+    settings_rect = pygame.Rect(SCREEN_WIDTH // 2 - (settings_text.get_width() + button_padding) // 2, 295, settings_text.get_width() + button_padding, button_height)
+    changelogs_rect = pygame.Rect(SCREEN_WIDTH // 2 - (changelogs_text.get_width() + button_padding) // 2, 345, changelogs_text.get_width() + button_padding, button_height)
+    exit_rect = pygame.Rect(SCREEN_WIDTH // 2 - (exit_text.get_width() + button_padding) // 2, 395, exit_text.get_width() + button_padding, button_height)
+
+    pygame.draw.rect(screen, WHITE, play_rect, 2)
+    pygame.draw.rect(screen, WHITE, settings_rect, 2)
+    pygame.draw.rect(screen, WHITE, changelogs_rect, 2)
+    pygame.draw.rect(screen, WHITE, exit_rect, 2)
 
     screen.blit(title_text, (SCREEN_WIDTH // 2 - title_text.get_width() // 2, 100))
-    screen.blit(play_text, (SCREEN_WIDTH // 2 - play_text.get_width() // 2, 250))
-    screen.blit(settings_text, (SCREEN_WIDTH // 2 - settings_text.get_width() // 2, 300))
-    screen.blit(changelogs_text, (SCREEN_WIDTH // 2 - changelogs_text.get_width() // 2, 350))
-    screen.blit(exit_text, (SCREEN_WIDTH // 2 - exit_text.get_width() // 2, 400))
+    screen.blit(play_text, (play_rect.centerx - play_text.get_width() // 2, play_rect.centery - play_text.get_height() // 2))
+    screen.blit(settings_text, (settings_rect.centerx - settings_text.get_width() // 2, settings_rect.centery - settings_text.get_height() // 2))
+    screen.blit(changelogs_text, (changelogs_rect.centerx - changelogs_text.get_width() // 2, changelogs_rect.centery - changelogs_text.get_height() // 2))
+    screen.blit(exit_text, (exit_rect.centerx - exit_text.get_width() // 2, exit_rect.centery - exit_text.get_height() // 2))
     screen.blit(version_text, (SCREEN_WIDTH - version_text.get_width() - 10, SCREEN_HEIGHT - 30))
     
     if update_available:
@@ -232,10 +233,23 @@ def draw_pause_menu():
     main_menu_text = font.render("Main Menu", True, WHITE)
     exit_text = font.render("Exit", True, WHITE)
 
-    screen.blit(resume_text, (SCREEN_WIDTH // 2 - resume_text.get_width() // 2, 250))
-    screen.blit(settings_text, (SCREEN_WIDTH // 2 - settings_text.get_width() // 2, 300))
-    screen.blit(main_menu_text, (SCREEN_WIDTH // 2 - main_menu_text.get_width() // 2, 350))
-    screen.blit(exit_text, (SCREEN_WIDTH // 2 - exit_text.get_width() // 2, 400))
+    button_padding = 20
+    button_height = resume_text.get_height() + 10
+
+    resume_rect = pygame.Rect(SCREEN_WIDTH // 2 - (resume_text.get_width() + button_padding) // 2, 245, resume_text.get_width() + button_padding, button_height)
+    settings_rect = pygame.Rect(SCREEN_WIDTH // 2 - (settings_text.get_width() + button_padding) // 2, 295, settings_text.get_width() + button_padding, button_height)
+    main_menu_rect = pygame.Rect(SCREEN_WIDTH // 2 - (main_menu_text.get_width() + button_padding) // 2, 345, main_menu_text.get_width() + button_padding, button_height)
+    exit_rect = pygame.Rect(SCREEN_WIDTH // 2 - (exit_text.get_width() + button_padding) // 2, 395, exit_text.get_width() + button_padding, button_height)
+
+    pygame.draw.rect(screen, WHITE, resume_rect, 2)
+    pygame.draw.rect(screen, WHITE, settings_rect, 2)
+    pygame.draw.rect(screen, WHITE, main_menu_rect, 2)
+    pygame.draw.rect(screen, WHITE, exit_rect, 2)
+
+    screen.blit(resume_text, (resume_rect.centerx - resume_text.get_width() // 2, resume_rect.centery - resume_text.get_height() // 2))
+    screen.blit(settings_text, (settings_rect.centerx - settings_text.get_width() // 2, settings_rect.centery - settings_text.get_height() // 2))
+    screen.blit(main_menu_text, (main_menu_rect.centerx - main_menu_text.get_width() // 2, main_menu_rect.centery - main_menu_text.get_height() // 2))
+    screen.blit(exit_text, (exit_rect.centerx - exit_text.get_width() // 2, exit_rect.centery - exit_text.get_height() // 2))
 
     # Display version
     version = get_version()
@@ -254,10 +268,11 @@ def draw_changelogs():
     back_text = scaled_font.render("Back", True, WHITE)
 
     # Draw back button box
-    pygame.draw.rect(screen, WHITE, (SCREEN_WIDTH // 2 - 60, 500, 120, 40), 2)
+    back_rect = pygame.Rect(SCREEN_WIDTH // 2 - (back_text.get_width() + 20) // 2, 500, back_text.get_width() + 20, back_text.get_height() + 10)
+    pygame.draw.rect(screen, WHITE, back_rect, 2)
 
     screen.blit(title_text, (SCREEN_WIDTH // 2 - title_text.get_width() // 2, 50))
-    screen.blit(back_text, (SCREEN_WIDTH // 2 - back_text.get_width() // 2, 505))
+    screen.blit(back_text, (back_rect.centerx - back_text.get_width() // 2, back_rect.centery - back_text.get_height() // 2))
 
     y_offset = 120 - scroll_y
     for entry in changelog_data:
@@ -296,12 +311,15 @@ def draw_settings():
     toggle_fs = small_font.render("Toggle", True, WHITE)
 
     # Draw boxes
-    pygame.draw.rect(screen, WHITE, (SCREEN_WIDTH // 2 - 60, 195, 120, 30), 2)  # toggle fs
-    pygame.draw.rect(screen, WHITE, (SCREEN_WIDTH // 2 - 60, 495, 120, 40), 2)  # back
+    toggle_rect = pygame.Rect(SCREEN_WIDTH // 2 - (toggle_fs.get_width() + 20) // 2, 195, toggle_fs.get_width() + 20, toggle_fs.get_height() + 10)
+    back_rect = pygame.Rect(SCREEN_WIDTH // 2 - (back_text.get_width() + 20) // 2, 495, back_text.get_width() + 20, back_text.get_height() + 10)
 
-    screen.blit(fullscreen_text, (SCREEN_WIDTH // 2 - fullscreen_text.get_width() // 2, 200))
-    screen.blit(toggle_fs, (SCREEN_WIDTH // 2 - toggle_fs.get_width() // 2, 200))
-    screen.blit(back_text, (SCREEN_WIDTH // 2 - back_text.get_width() // 2, 500))
+    pygame.draw.rect(screen, WHITE, toggle_rect, 2)
+    pygame.draw.rect(screen, WHITE, back_rect, 2)
+
+    screen.blit(fullscreen_text, (SCREEN_WIDTH // 2 - fullscreen_text.get_width() // 2, 150))
+    screen.blit(toggle_fs, (toggle_rect.centerx - toggle_fs.get_width() // 2, toggle_rect.centery - toggle_fs.get_height() // 2))
+    screen.blit(back_text, (back_rect.centerx - back_text.get_width() // 2, back_rect.centery - back_text.get_height() // 2))
 
     # Display version
     version = get_version()
@@ -367,9 +385,10 @@ def draw_game():
     if game_over:
         game_over_text = scaled_font.render("Game Over! Press Enter to continue.", True, WHITE)
         back_text = scaled_font.render("Back to Menu", True, WHITE)
-        pygame.draw.rect(screen, WHITE, (SCREEN_WIDTH // 2 - 80, 545, 160, 40), 2)
+        back_rect = pygame.Rect(SCREEN_WIDTH // 2 - (back_text.get_width() + 20) // 2, 545, back_text.get_width() + 20, back_text.get_height() + 10)
+        pygame.draw.rect(screen, WHITE, back_rect, 2)
         screen.blit(game_over_text, (SCREEN_WIDTH // 2 - game_over_text.get_width() // 2, 500))
-        screen.blit(back_text, (SCREEN_WIDTH // 2 - back_text.get_width() // 2, 550))
+        screen.blit(back_text, (back_rect.centerx - back_text.get_width() // 2, back_rect.centery - back_text.get_height() // 2))
 
     # Display version
     version = get_version()
@@ -380,10 +399,19 @@ def handle_menu_click(pos):
     """Handle menu button clicks."""
     global current_state, prev_state
 
-    play_rect = pygame.Rect(SCREEN_WIDTH // 2 - 60, 245, 120, 40)
-    settings_rect = pygame.Rect(SCREEN_WIDTH // 2 - 60, 295, 120, 40)
-    changelogs_rect = pygame.Rect(SCREEN_WIDTH // 2 - 60, 345, 120, 40)
-    exit_rect = pygame.Rect(SCREEN_WIDTH // 2 - 60, 395, 120, 40)
+    scaled_font = scale_font(FONT_SIZE)
+    play_text = scaled_font.render("Play", True, WHITE)
+    settings_text = scaled_font.render("Settings", True, WHITE)
+    changelogs_text = scaled_font.render("Changelogs", True, WHITE)
+    exit_text = scaled_font.render("Exit", True, WHITE)
+
+    button_padding = 20
+    button_height = play_text.get_height() + 10
+
+    play_rect = pygame.Rect(SCREEN_WIDTH // 2 - (play_text.get_width() + button_padding) // 2, 245, play_text.get_width() + button_padding, button_height)
+    settings_rect = pygame.Rect(SCREEN_WIDTH // 2 - (settings_text.get_width() + button_padding) // 2, 295, settings_text.get_width() + button_padding, button_height)
+    changelogs_rect = pygame.Rect(SCREEN_WIDTH // 2 - (changelogs_text.get_width() + button_padding) // 2, 345, changelogs_text.get_width() + button_padding, button_height)
+    exit_rect = pygame.Rect(SCREEN_WIDTH // 2 - (exit_text.get_width() + button_padding) // 2, 395, exit_text.get_width() + button_padding, button_height)
 
     if play_rect.collidepoint(pos):
         current_state = PLAYING
@@ -400,7 +428,10 @@ def handle_changelogs_click(pos):
     """Handle changelogs button clicks."""
     global current_state, prev_state
 
-    back_rect = pygame.Rect(SCREEN_WIDTH // 2 - 60, 500, 120, 40)
+    scaled_font = scale_font(FONT_SIZE)
+    back_text = scaled_font.render("Back", True, WHITE)
+
+    back_rect = pygame.Rect(SCREEN_WIDTH // 2 - (back_text.get_width() + 20) // 2, 500, back_text.get_width() + 20, back_text.get_height() + 10)
 
     if back_rect.collidepoint(pos):
         current_state = prev_state
@@ -409,10 +440,15 @@ def handle_settings_click(pos):
     """Handle settings button clicks."""
     global current_state, prev_state, fullscreen
 
-    toggle_fs_rect = pygame.Rect(SCREEN_WIDTH // 2 - 60, 195, 120, 30)
-    back_rect = pygame.Rect(SCREEN_WIDTH // 2 - 60, 495, 120, 40)
+    small_font = scale_font(20)
+    scaled_font = scale_font(FONT_SIZE)
+    toggle_fs = small_font.render("Toggle", True, WHITE)
+    back_text = scaled_font.render("Back", True, WHITE)
 
-    if toggle_fs_rect.collidepoint(pos):
+    toggle_rect = pygame.Rect(SCREEN_WIDTH // 2 - (toggle_fs.get_width() + 20) // 2, 195, toggle_fs.get_width() + 20, toggle_fs.get_height() + 10)
+    back_rect = pygame.Rect(SCREEN_WIDTH // 2 - (back_text.get_width() + 20) // 2, 495, back_text.get_width() + 20, back_text.get_height() + 10)
+
+    if toggle_rect.collidepoint(pos):
         fullscreen = not fullscreen
         pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE | (pygame.FULLSCREEN if fullscreen else 0))
     elif back_rect.collidepoint(pos):
@@ -422,10 +458,18 @@ def handle_pause_menu_click(pos):
     """Handle pause menu button clicks."""
     global current_state, prev_state
 
-    resume_rect = pygame.Rect(SCREEN_WIDTH // 2 - 50, 250, 100, 40)
-    settings_rect = pygame.Rect(SCREEN_WIDTH // 2 - 50, 300, 100, 40)
-    main_menu_rect = pygame.Rect(SCREEN_WIDTH // 2 - 50, 350, 100, 40)
-    exit_rect = pygame.Rect(SCREEN_WIDTH // 2 - 50, 400, 100, 40)
+    resume_text = font.render("Resume", True, WHITE)
+    settings_text = font.render("Settings", True, WHITE)
+    main_menu_text = font.render("Main Menu", True, WHITE)
+    exit_text = font.render("Exit", True, WHITE)
+
+    button_padding = 20
+    button_height = resume_text.get_height() + 10
+
+    resume_rect = pygame.Rect(SCREEN_WIDTH // 2 - (resume_text.get_width() + button_padding) // 2, 245, resume_text.get_width() + button_padding, button_height)
+    settings_rect = pygame.Rect(SCREEN_WIDTH // 2 - (settings_text.get_width() + button_padding) // 2, 295, settings_text.get_width() + button_padding, button_height)
+    main_menu_rect = pygame.Rect(SCREEN_WIDTH // 2 - (main_menu_text.get_width() + button_padding) // 2, 345, main_menu_text.get_width() + button_padding, button_height)
+    exit_rect = pygame.Rect(SCREEN_WIDTH // 2 - (exit_text.get_width() + button_padding) // 2, 395, exit_text.get_width() + button_padding, button_height)
 
     if resume_rect.collidepoint(pos):
         current_state = PLAYING
@@ -518,7 +562,9 @@ while running:
             elif current_state == CHANGELOGS:
                 handle_changelogs_click(event.pos)
             elif current_state == PLAYING and game_over:
-                back_rect = pygame.Rect(SCREEN_WIDTH // 2 - 80, 545, 160, 40)
+                scaled_font = scale_font(FONT_SIZE)
+                back_text = scaled_font.render("Back to Menu", True, WHITE)
+                back_rect = pygame.Rect(SCREEN_WIDTH // 2 - (back_text.get_width() + 20) // 2, 545, back_text.get_width() + 20, back_text.get_height() + 10)
                 if back_rect.collidepoint(event.pos):
                     current_password_index = 0
                     guesses_used = 0

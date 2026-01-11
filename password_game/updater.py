@@ -14,7 +14,7 @@ import sys
 # Replace this URL with your own update server URL
 # For example: "https://yourwebsite.com/updates/project_zozfil/"
 # The server should host the update files and a latest_version.json file
-UPDATE_URL = "github.com/EEEEEEETETETETETASD/project-zozfil-v2.git"
+UPDATE_URL = "https://EEEEEEETETETETASD.github.io/project-zozfil/password_game/updates/"
 VERSION_FILE = "version.json"
 GAME_EXE = "app.exe"
 
@@ -63,18 +63,6 @@ def apply_update(latest_version):
             os.remove(GAME_EXE)
         shutil.move("temp_app.exe", GAME_EXE)
         
-        # Download icon.png if not present
-        if not os.path.exists("icon.png"):
-            try:
-                icon_response = requests.get(f"{UPDATE_URL}icon.png", stream=True)
-                icon_response.raise_for_status()
-                with open("icon.png", "wb") as f:
-                    for chunk in icon_response.iter_content(chunk_size=8192):
-                        f.write(chunk)
-                print("Icon downloaded.")
-            except Exception as e:
-                print(f"Error downloading icon: {e}")
-
         # Update version file
         with open(VERSION_FILE, "w") as f:
             json.dump({"version": latest_version}, f)
